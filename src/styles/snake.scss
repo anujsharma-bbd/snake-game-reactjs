@@ -14,8 +14,17 @@ $blackColor: #000;
     height: 16px;
     width: 16px;
     float: left;
+    position: relative;
   }
   .snake {
     background-color: $blackColor;
+  }
+  .square {
+    border: 1px solid #eee;
+  }
+  #food-icon {
+    position: absolute;
+    top: 0px;
+    left: 0px;
   }
 }

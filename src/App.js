@@ -1,5 +1,5 @@
 import React from 'react';
-import './App.css';
+import './App.scss';
 import SnakeBoardComponent from './components/snake-board';
 
 function App() {

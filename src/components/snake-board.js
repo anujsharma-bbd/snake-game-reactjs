@@ -8,7 +8,7 @@ class SnakeBoardComponent extends React.Component {
 
     }
     componentDidMount() {
-        document.addEventListener('click', this.onNavigationKey);
+        document.addEventListener('keydown', this.onNavigationKey);
     }
     onNavigationKey = (e) => {
         let { snakeDirection } = this.state;
@@ -45,9 +45,6 @@ class SnakeBoardComponent extends React.Component {
     }
     startGame = () => {
         this.generateSnakeDefaultCoordinates();
-        // this.startCrawling();
-        // $('#startBtn').text('Start Again').prop("disabled", true);
-        // $("#pauseBtn").text('Pause').prop("disabled", false);
         this.setState({ startBtnDisable: true, pauseBtnDisable: false, cancelBtnDisable: false });
     }
 
@@ -64,7 +61,7 @@ class SnakeBoardComponent extends React.Component {
                 clearTimeout(foodTimer);
             }
         }
-        this.setState({ paused, startBtnDisable: true, pauseBtnDisable: false, cancelBtnDisable: false, crawlerTimer: null, foodTimer: null });
+        this.setState({ paused: paused, startBtnDisable: true, pauseBtnDisable: false, cancelBtnDisable: false });
     }
     resumeGame = () => {
         this.startCrawling();
@@ -93,13 +90,9 @@ class SnakeBoardComponent extends React.Component {
                 this.consumeFood({ ...nextCoords });
                 snakeCoordinates.splice(0, 0, nextCoords); // added tail to head
                 tailHistory.push(tail);
-                this.addSnakePoint(nextCoords.x, nextCoords.y); // reflect on DOM
 
                 if (snakeCoordinates.length < snakeLength) { // if snake is not fully rendered it will add up remaining tails
                     snakeCoordinates.push(tail);
-                    this.addSnakePoint(tail.x, tail.y);
-                } else {
-                    this.removeSnakePoint(tail.x, tail.y);
                 }
                 this.setState({ snakeCoordinates: [...snakeCoordinates], tailHistory: [...tailHistory] });
             } else {
@@ -111,16 +104,6 @@ class SnakeBoardComponent extends React.Component {
     cancelGame = () => {
         this.clearTimers();
         this.resetSettings();
-    }
-    addSnakePoint = (x, y) => {
-        let el = document.getElementById(`${x}-${y}`);
-        if (el)
-            el.classList.add("snake");
-    }
-    removeSnakePoint = (x, y) => {
-        let el = document.getElementById(`${x}-${y}`);
-        if (el)
-            el.classList.remove('snake');
     }
     showFoods = () => {
         let { snakeDirection, foodTimer, foodType } = this.state;
@@ -188,7 +171,6 @@ class SnakeBoardComponent extends React.Component {
         if (foodTimer) {
             clearTimeout(foodTimer);
         }
-        this.setState({ crawlerTimer: null, foodTimer: null });
     }
     nextPosiblePoint = (head) => {
         let { cols, rows, snakeDirection } = this.state;
@@ -256,7 +238,6 @@ class SnakeBoardComponent extends React.Component {
         let y = 0, x = this.getSnakeStartPoint();
         let arr = [...this.state.snakeCoordinates, { x, y }];
         this.setState({ snakeCoordinates: arr }, () => {
-            this.addSnakePoint(x, y);
             this.startCrawling();
         });
     }
@@ -276,11 +257,7 @@ class SnakeBoardComponent extends React.Component {
         this.setState({ maxScore, totalScore, simpleScore, spacialScore });
     }
     hideFood = () => {
-        let point = this.state.foodCoords;
-        let el = document.getElementById(`${point.x}-${point.y}`);
-        if (el) {
-            el.innerHTML = ('');
-        }
+        this.setState({ foodCoords: null });
         this.showFoods();
     }
     getFoodRandomCoords = () => {
@@ -297,22 +274,12 @@ class SnakeBoardComponent extends React.Component {
         return point;
     }
     addFood = () => {
-        let { foodCoords } = this.state;
-        let point = foodCoords = this.getFoodRandomCoords();
-        let el = document.getElementById(`${point.x}-${point.y}`);
-        if (el) {
-            el.innerHTML = ('<i id="food-icon" class="fas fa-cookie-bite"></i>');
-        }
-        this.setState({ foodCoords });
+        let point = this.getFoodRandomCoords();
+        this.setState({ foodCoords: point, spacialFood: false });
     }
     addSpacialFood = () => {
-        let { foodCoords } = this.state;
-        let point = foodCoords = this.getFoodRandomCoords();
-        let el = document.getElementById(`${point.x}-${point.y}`);
-        if (el) {
-            el.innerHTML = ('<i id="food-icon" class="fas fa-apple-alt fa-2x"></i>');
-        }
-        this.setState({ foodCoords });
+        let point = this.getFoodRandomCoords();
+        this.setState({ foodCoords: point, spacialFood: true });
     }
     getDefaults = () => {
         const h = 800, w = 800, sh = 16, sw = 16;
@@ -322,25 +289,26 @@ class SnakeBoardComponent extends React.Component {
             crawlSpeed: 100, crawlerTimer: null, foodType: null, // 0= simple food, 1=spacial food
             foodCoords: null, tailHistory: [], foodTimer: null, paused: false,
             foodTimeout: [4, 10], spacialFoodTimeout: [1, 5], hideFoodTimer: null,
-            startBtnDisable: false, pauseBtnDisable: false, cancelBtnDisable: false,
+            startBtnDisable: false, pauseBtnDisable: false, cancelBtnDisable: false, spacialFood: false,
             removeSnakes: false, removeFoodIcon: false, rows: new Array(this.getSquareCountsinRow(h, w, sh, sw)).fill(''), cols: new Array(this.getSquareCountsinCol(h, w, sh, sw)).fill(''),
             totalScore: 0, maxScore: 0, simpleFoodPoint: 1, spacialFoodPoint: 9, simpleScore: 0, spacialScore: 0// of type {x,y}
         };
     }
     render() {
-        const { totalScore, maxScore, simpleScore, spacialScore, rows, cols, startBtnDisable, pauseBtnDisable, cancelBtnDisable } = this.state;
+        const { totalScore, maxScore, simpleScore, spacialScore, rows, cols,
+            startBtnDisable, pauseBtnDisable, cancelBtnDisable, paused, crawlerTimer, foodCoords, snakeCoordinates, spacialFood } = this.state;
 
         return (
             <>
-                <div className='container-fluid mt-5'>
+                <div className='container-fluid mt-1'>
                     <div className='row'>
                         <div className='col-sm-12 pl-5 text-center'>
-                            <button className='btn btn-primary mr-2' disabled={startBtnDisable} onClick={this.startGame}>Start</button>
-                            <button className='btn btn-secondary mr-2' disabled={pauseBtnDisable} onClick={this.pauseGame}>Pause</button>
+                            <button className='btn btn-primary mr-2' disabled={startBtnDisable} onClick={this.startGame}>{crawlerTimer ? 'Start Again' : 'Start'}</button>
+                            <button className='btn btn-secondary mr-2' disabled={pauseBtnDisable} onClick={this.pauseGame}>{paused ? 'Resume' : 'Pause'}</button>
                             <button className='btn btn-danger' disabled={cancelBtnDisable} onClick={this.cancelGame}>Cancel</button>
                         </div>
                     </div>
-                    <br /> <br />
+                    <br />
                     <div className='row'>
                         <div className='col-sm-2'></div>
                         <div className='col-sm-2'>
@@ -361,7 +329,17 @@ class SnakeBoardComponent extends React.Component {
                 <br /> <br />
                 <div className='main-area' id='main-area'>
                     {
-                        rows.map((r, i) => cols.map((c, j) => <div id={i + "-" + j} key={i + "-" + j} className='square'></div>))
+                        rows.map((r, i) => cols.map((c, j) => {
+                            const matchedSnake = !!(snakeCoordinates && snakeCoordinates.find(m => m.x === i && m.y === j));
+                            const matchedfood = !!(foodCoords && foodCoords.x === i && foodCoords.y === j);
+                            return (<div key={i + "-" + j} className={'square ' + (matchedSnake ? ' snake ' : '') + (matchedfood ? ' food ' : '')}>
+                                {
+                                    matchedfood ?
+                                        <i id="food-icon" className={"fas " + (spacialFood ? "fa-apple-alt fa-2x" : "fa-cookie-bite")}></i>
+                                        : null
+                                }
+                            </div>)
+                        }))
                     }
                 </div>
             </>
