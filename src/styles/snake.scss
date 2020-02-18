@@ -20,11 +20,12 @@ $blackColor: #000;
     background-color: $blackColor;
   }
   .square {
-    border: 1px solid #eee;
+    border: 1px solid #ccc;
   }
   #food-icon {
     position: absolute;
     top: 0px;
     left: 0px;
+    z-index: 100;
   }
 }

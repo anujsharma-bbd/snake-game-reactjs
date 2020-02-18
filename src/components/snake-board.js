@@ -288,7 +288,7 @@ class SnakeBoardComponent extends React.Component {
             snakeCoordinates: [], // object of {x:int,y:int}
             crawlSpeed: 100, crawlerTimer: null, foodType: null, // 0= simple food, 1=spacial food
             foodCoords: null, tailHistory: [], foodTimer: null, paused: false,
-            foodTimeout: [4, 10], spacialFoodTimeout: [1, 5], hideFoodTimer: null,
+            foodTimeout: [4, 10], spacialFoodTimeout: [100, 500], hideFoodTimer: null,
             startBtnDisable: false, pauseBtnDisable: false, cancelBtnDisable: false, spacialFood: false,
             removeSnakes: false, removeFoodIcon: false, rows: new Array(this.getSquareCountsinRow(h, w, sh, sw)).fill(''), cols: new Array(this.getSquareCountsinCol(h, w, sh, sw)).fill(''),
             totalScore: 0, maxScore: 0, simpleFoodPoint: 1, spacialFoodPoint: 9, simpleScore: 0, spacialScore: 0// of type {x,y}
@@ -299,50 +299,81 @@ class SnakeBoardComponent extends React.Component {
             startBtnDisable, pauseBtnDisable, cancelBtnDisable, paused, crawlerTimer, foodCoords, snakeCoordinates, spacialFood } = this.state;
 
         return (
-            <>
-                <div className='container-fluid mt-1'>
-                    <div className='row'>
-                        <div className='col-sm-12 pl-5 text-center'>
-                            <button className='btn btn-primary mr-2' disabled={startBtnDisable} onClick={this.startGame}>{crawlerTimer ? 'Start Again' : 'Start'}</button>
-                            <button className='btn btn-secondary mr-2' disabled={pauseBtnDisable} onClick={this.pauseGame}>{paused ? 'Resume' : 'Pause'}</button>
-                            <button className='btn btn-danger' disabled={cancelBtnDisable} onClick={this.cancelGame}>Cancel</button>
+            <div className="container pt-3">
+                <div className='row'>
+                    <div className='col-sm-3'>
+                        <div className="row">
+                            <div className="col-sm-12">
+                                <div className="row">
+                                    <div className="col-sm-12">
+                                        <header className="App-header">
+                                            Snake Game
+                                        </header>
+                                        <hr />
+                                    </div>
+                                </div>
+                                <div className="row mb-1">
+                                    <div className="col-sm-12">
+                                        <button className='btn btn-block btn-primary mr-2' disabled={startBtnDisable} onClick={this.startGame}>{crawlerTimer ? 'Start Again' : 'Start'}</button> <br />
+                                    </div>
+                                </div>
+                                <div className="row mb-1">
+                                    <div className="col-sm-12">
+                                        <button className='btn btn-block btn-secondary mr-2' disabled={pauseBtnDisable} onClick={this.pauseGame}>{paused ? 'Resume' : 'Pause'}</button> <br />
+                                    </div>
+                                </div>
+                                <div className="row mb-1">
+                                    <div className="col-sm-12">
+                                        <button className='btn btn-block btn-danger' disabled={cancelBtnDisable} onClick={this.cancelGame}>Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="row"><div className="col-sm-12">&nbsp;</div></div>
+                        <div className='row'>
+                            <div className="col-sm-12">
+                                <div className="row mb-2">
+                                    <div className='col-sm-12'>
+                                        Current Score # <span >{totalScore}</span>
+                                    </div>
+                                </div>
+                                <div className="row mb-2">
+                                    <div className='col-sm-12'>
+                                        Max Score # <span >{maxScore}</span>
+                                    </div>
+                                </div>
+                                <div className="row mb-2">
+                                    <div className='col-sm-12'>
+                                        Simple Food # <span >{simpleScore}</span>
+                                    </div>
+                                </div>
+                                <div className="row mb-2">
+                                    <div className='col-sm-12'>
+                                        Spacial Food # <span >{spacialScore}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <br />
-                    <div className='row'>
-                        <div className='col-sm-2'></div>
-                        <div className='col-sm-2'>
-                            Current Score # <span >{totalScore}</span>
+                    <div className="col-sm-9">
+                        <div className='main-area' id='main-area'>
+                            {
+                                rows.map((r, i) => cols.map((c, j) => {
+                                    const matchedSnake = !!(snakeCoordinates && snakeCoordinates.find(m => m.x === i && m.y === j));
+                                    const matchedfood = !!(foodCoords && foodCoords.x === i && foodCoords.y === j);
+                                    return (<div key={i + "-" + j} className={'square ' + (matchedSnake ? ' snake ' : '') + (matchedfood ? ' food ' : '')}>
+                                        {
+                                            matchedfood ?
+                                                <i id="food-icon" className={"fas " + (spacialFood ? "fa-apple-alt fa-2x" : "fa-cookie-bite")}></i>
+                                                : null
+                                        }
+                                    </div>)
+                                }))
+                            }
                         </div>
-                        <div className='col-sm-2'>
-                            Max Score # <span >{maxScore}</span>
-                        </div>
-                        <div className='col-sm-2'>
-                            Simple Food # <span >{simpleScore}</span>
-                        </div>
-                        <div className='col-sm-2'>
-                            Spacial Food # <span >{spacialScore}</span>
-                        </div>
-                        <div className='col-sm-2'></div>
                     </div>
                 </div>
-                <br /> <br />
-                <div className='main-area' id='main-area'>
-                    {
-                        rows.map((r, i) => cols.map((c, j) => {
-                            const matchedSnake = !!(snakeCoordinates && snakeCoordinates.find(m => m.x === i && m.y === j));
-                            const matchedfood = !!(foodCoords && foodCoords.x === i && foodCoords.y === j);
-                            return (<div key={i + "-" + j} className={'square ' + (matchedSnake ? ' snake ' : '') + (matchedfood ? ' food ' : '')}>
-                                {
-                                    matchedfood ?
-                                        <i id="food-icon" className={"fas " + (spacialFood ? "fa-apple-alt fa-2x" : "fa-cookie-bite")}></i>
-                                        : null
-                                }
-                            </div>)
-                        }))
-                    }
-                </div>
-            </>
+            </div>
         );
     }
 }
