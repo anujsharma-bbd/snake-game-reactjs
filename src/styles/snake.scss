@@ -1,0 +1,21 @@
+$grayColor: #eee;
+$blackColor: #000;
+* {
+  box-sizing: border-box;
+}
+.main-area {
+  width: 800px;
+  height: 800px;
+  margin: 20px;
+  background-color: $grayColor;
+  margin: 0 auto;
+  .square,
+  .food {
+    height: 16px;
+    width: 16px;
+    float: left;
+  }
+  .snake {
+    background-color: $blackColor;
+  }
+}
