@@ -15,9 +15,35 @@ $blackColor: #000;
     width: 16px;
     float: left;
     position: relative;
+    z-index: 10;
   }
   .snake {
     background-color: $blackColor;
+  }
+  .snake-head {
+    position: absolute;
+    left: 0px;
+    top: -8px;
+    z-index: 1001;
+    opacity: 1;
+    &.dir-right {
+      transform: rotate(0deg);
+      left: 15px;
+    }
+    &.dir-left {
+      transform: rotate(-180deg);
+      left: -30px;
+    }
+    &.dir-up {
+      transform: rotate(-90deg);
+      left: -8px;
+      top: -30px;
+    }
+    &.dir-down {
+      transform: rotate(90deg);
+      left: -8px;
+      top: 12px;
+    }
   }
   #food-icon {
     position: absolute;

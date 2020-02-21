@@ -1,5 +1,5 @@
 import React from 'react';
-
+import SnakeHead from '../assets/snake.png';
 
 class SnakeBoardComponent extends React.Component {
    constructor(props) {
@@ -306,8 +306,24 @@ class SnakeBoardComponent extends React.Component {
    }
    render() {
       const { totalScore, maxScore, simpleScore, spacialScore, rows, cols,
-         startBtnDisable, pauseBtnDisable, cancelBtnDisable, paused, crawlerTimer, foodCoords, snakeCoordinates, spacialFood } = this.state;
-
+         startBtnDisable, pauseBtnDisable, cancelBtnDisable, paused, crawlerTimer, foodCoords, snakeDirection, snakeCoordinates, spacialFood } = this.state;
+      let headDir = "dir-";
+      switch (snakeDirection) {
+         case 0:
+            headDir += 'right';
+            break;
+         case 1:
+            headDir += 'left';
+            break;
+         case 2:
+            headDir += 'up';
+            break;
+         case 3:
+            headDir += 'down';
+            break;
+         default:
+            break;
+      }
       return (
          <div className="container pt-3">
             <div className='row'>
@@ -370,8 +386,13 @@ class SnakeBoardComponent extends React.Component {
                      {
                         rows.map((r, i) => cols.map((c, j) => {
                            const matchedSnake = !!(snakeCoordinates && snakeCoordinates.find(m => m.x === i && m.y === j));
+                           const snakeHeadCord = (snakeCoordinates && snakeCoordinates[0]);
+                           const isItHead = snakeHeadCord && snakeHeadCord.x === i && snakeHeadCord.y === j;
                            const matchedfood = !!(foodCoords && foodCoords.x === i && foodCoords.y === j);
                            return (<div id={i + "-" + j} key={i + "-" + j} className={'square ' + (matchedSnake ? ' snake ' : '') + (matchedfood ? ' food ' : '')}>
+                              {
+                                 (isItHead ? <img className={'snake-head ' + headDir} src={SnakeHead} alt='head' /> : null)
+                              }
                               {
                                  matchedfood ?
                                     <i id="food-icon" className={"fas " + (spacialFood ? "fa-apple-alt fa-2x" : "fa-cookie-bite")}></i>
